@@ -32,9 +32,15 @@ export class FilmsService {
       throw new NotFoundException({ error: 'Film not found' });
     }
 
+    const scheduleDtos = film.schedule.map((session) =>
+      this.toScheduleDto(session),
+    );
+
     return {
-      total: film.schedule.length,
-      items: film.schedule.map((s) => this.toScheduleDto(s)),
+      ...this.toFilmDto(film),
+      schedule: scheduleDtos,
+      total: scheduleDtos.length,
+      items: scheduleDtos,
     };
   }
 

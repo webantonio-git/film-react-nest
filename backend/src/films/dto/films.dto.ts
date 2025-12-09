@@ -25,7 +25,8 @@ export class FilmsResponseDto {
   items: FilmDto[];
 }
 
-export class FilmScheduleResponseDto {
+export class FilmScheduleResponseDto extends FilmDto {
+  schedule: ScheduleDto[];
   total: number;
   items: ScheduleDto[];
 }
