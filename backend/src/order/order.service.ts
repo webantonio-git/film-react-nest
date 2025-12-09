@@ -20,7 +20,6 @@ export class OrderService {
     dto: CreateOrderRequestDto,
   ): Promise<CreateOrderResponseDto> {
     const tickets: TicketDto[] = dto.tickets ?? [];
-
     if (tickets.length === 0) {
       throw new BadRequestException('No tickets provided');
     }

@@ -1,9 +1,7 @@
-// DTO для /order
-
 export class TicketDto {
-  film: string; // uuid фильма
-  session: string; // uuid сеанса
-  daytime: string; // ISO date-time
+  film: string;
+  session: string;
+  daytime: string;
   row: number;
   seat: number;
   price: number;
