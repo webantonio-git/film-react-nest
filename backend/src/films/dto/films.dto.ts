@@ -12,8 +12,8 @@ export class FilmDto {
 
 export class ScheduleDto {
   id: string;
-  daytime: string; // ISO date-time
-  hall: string;
+  daytime: string;
+  hall: number;
   rows: number;
   seats: number;
   price: number;

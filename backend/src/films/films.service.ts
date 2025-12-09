@@ -62,7 +62,7 @@ export class FilmsService {
     return {
       id: session.id,
       daytime: session.daytime.toISOString(),
-      hall: String(session.hall),
+      hall: session.hall,
       rows: session.rows,
       seats: session.seats,
       price: session.price,
