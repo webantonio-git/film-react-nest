@@ -1,16 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import {
-  FilmEntity,
-  FilmsRepository,
-  ScheduleEntity,
-} from '../repository/films.repository';
-import {
-  FilmDto,
-  FilmScheduleResponseDto,
-  FilmsResponseDto,
-  ScheduleDto,
-} from './dto/films.dto';
+import { FilmDto, FilmScheduleResponseDto, FilmsResponseDto, ScheduleDto } from './dto/films.dto';
+import { FilmEntity, FilmsRepository, ScheduleEntity } from './films.repository';
 
 @Injectable()
 export class FilmsService {
@@ -31,10 +22,7 @@ export class FilmsService {
     if (!film) {
       throw new NotFoundException({ error: 'Film not found' });
     }
-
-    const scheduleDtos = film.schedule.map((session) =>
-      this.toScheduleDto(session),
-    );
+    const scheduleDtos = film.schedule.map((s) => this.toScheduleDto(s));
 
     return {
       ...this.toFilmDto(film),

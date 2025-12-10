@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { FilmsRepository } from '../repository/films.repository';
+import { FilmsRepository } from '../films/films.repository';
 import {
   CreateOrderRequestDto,
   CreateOrderResponseDto,
@@ -16,10 +12,9 @@ import {
 export class OrderService {
   constructor(private readonly filmsRepository: FilmsRepository) {}
 
-  async createOrder(
-    dto: CreateOrderRequestDto,
-  ): Promise<CreateOrderResponseDto> {
+  async createOrder(dto: CreateOrderRequestDto): Promise<CreateOrderResponseDto> {
     const tickets: TicketDto[] = dto.tickets ?? [];
+
     if (tickets.length === 0) {
       throw new BadRequestException('No tickets provided');
     }
@@ -34,9 +29,7 @@ export class OrderService {
 
       const session = film.schedule.find((s) => s.id === ticket.session);
       if (!session) {
-        throw new NotFoundException(
-          `Session not found for film ${ticket.film}`,
-        );
+        throw new NotFoundException(`Session not found for film ${ticket.film}`);
       }
 
       if (
