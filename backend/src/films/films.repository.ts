@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Film, FilmDocument, Schedule } from './shemas/film.shema';
+import { FilmEntityOrm } from './entities/film.entity';
+import { ScheduleEntityOrm } from './entities/schedule.entity';
 
 export interface ScheduleEntity {
   id: string;
@@ -30,60 +31,77 @@ export interface FilmEntity {
 @Injectable()
 export class FilmsRepository {
   constructor(
-    @InjectModel(Film.name)
-    private readonly filmModel: Model<FilmDocument>,
+    @InjectRepository(FilmEntityOrm)
+    private readonly filmRepo: Repository<FilmEntityOrm>,
+    @InjectRepository(ScheduleEntityOrm)
+    private readonly scheduleRepo: Repository<ScheduleEntityOrm>,
   ) {}
 
   async findAll(): Promise<FilmEntity[]> {
-    const docs = await this.filmModel.find().lean();
-    return docs.map((doc) => this.mapDocToEntity(doc));
+    const films = await this.filmRepo.find({
+      relations: { schedule: true },
+      order: { title: 'ASC' },
+    });
+
+    return films.map((f) => this.mapOrmToEntity(f));
   }
 
   async findById(id: string): Promise<FilmEntity | null> {
-    const doc = await this.filmModel.findOne({ id }).lean();
-    if (!doc) {
-      return null;
-    }
-    return this.mapDocToEntity(doc);
+    const film = await this.filmRepo.findOne({
+      where: { id },
+      relations: { schedule: true },
+    });
+
+    if (!film) return null;
+    return this.mapOrmToEntity(film);
   }
 
   async bookSeat(filmId: string, sessionId: string, row: number, seat: number): Promise<boolean> {
     const seatKey = `${row}:${seat}`;
 
-    const updated = await this.filmModel.updateOne(
-      {
-        id: filmId,
-        'schedule.id': sessionId,
-        'schedule.taken': { $ne: seatKey },
-      },
-      {
-        $addToSet: { 'schedule.$.taken': seatKey },
-      },
-    );
+    const res = await this.scheduleRepo
+      .createQueryBuilder()
+      .update(ScheduleEntityOrm)
+      .set({
+        taken: () => `CASE WHEN "taken" = '' THEN :seatKey ELSE "taken" || ',' || :seatKey END`,
+      })
+      .where('"id" = :sessionId', { sessionId })
+      .andWhere('"filmId" = :filmId', { filmId })
+      .andWhere(`NOT (:seatKey = ANY(string_to_array("taken", ',')))`, { seatKey })
+      .execute();
 
-    return updated.modifiedCount > 0;
+    return (res.affected ?? 0) > 0;
   }
 
-  private mapDocToEntity(doc: Film & { schedule: Schedule[] }): FilmEntity {
+  private mapOrmToEntity(film: FilmEntityOrm): FilmEntity {
     return {
-      id: doc.id,
-      rating: doc.rating,
-      director: doc.director,
-      tags: doc.tags ?? [],
-      image: doc.image,
-      cover: doc.cover,
-      title: doc.title,
-      about: doc.about,
-      description: doc.description,
-      schedule: (doc.schedule ?? []).map((s) => ({
+      id: film.id,
+      rating: film.rating,
+      director: film.director,
+      tags: this.parseCsvList(film.tags),
+      image: film.image,
+      cover: film.cover,
+      title: film.title,
+      about: film.about,
+      description: film.description,
+      schedule: (film.schedule ?? []).map((s) => ({
         id: s.id,
-        daytime: s.daytime instanceof Date ? s.daytime : new Date(s.daytime),
+        daytime: new Date(s.daytime),
         hall: s.hall,
         rows: s.rows,
         seats: s.seats,
         price: s.price,
-        taken: s.taken ?? [],
+        taken: this.parseCsvList(s.taken),
       })),
     };
+  }
+
+  private parseCsvList(value: string | null | undefined): string[] {
+    const v = (value ?? '').trim();
+    if (!v) return [];
+    return v
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
   }
 }
