@@ -10,21 +10,26 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const url = configService.get<string>('DATABASE_URL') || undefined;
+        const url = configService.get<string>('DATABASE_URL');
 
         return {
           type: 'postgres',
-          ...(url ? { url } : {}),
-          host: configService.get<string>('DATABASE_HOST', '127.0.0.1'),
-          port: Number(configService.get<string>('DATABASE_PORT', '5432')),
-          username: configService.get<string>('DATABASE_USERNAME', 'prac'),
-          password: configService.get<string>('DATABASE_PASSWORD', 'student'),
-          database: configService.get<string>('DATABASE_NAME', 'prac'),
+
+          ...(url
+            ? { url }
+            : {
+                host: configService.getOrThrow<string>('DATABASE_HOST'),
+                port: Number(configService.getOrThrow<string>('DATABASE_PORT')),
+                username: configService.getOrThrow<string>('DATABASE_USERNAME'),
+                password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
+                database: configService.getOrThrow<string>('DATABASE_NAME'),
+              }),
 
           entities: [FilmEntityOrm, ScheduleEntityOrm],
 
-          synchronize: configService.get<string>('TYPEORM_SYNCHRONIZE', 'false') === 'true',
-          logging: configService.get<string>('TYPEORM_LOGGING', 'false') === 'true',
+          synchronize: configService.get<string>('TYPEORM_SYNCHRONIZE') === 'true',
+          logging: configService.get<string>('TYPEORM_LOGGING') === 'true',
+
           retryAttempts: 20,
           retryDelay: 1000,
         };
