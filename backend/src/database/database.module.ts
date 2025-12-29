@@ -25,6 +25,8 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
 
           synchronize: configService.get<string>('TYPEORM_SYNCHRONIZE', 'false') === 'true',
           logging: configService.get<string>('TYPEORM_LOGGING', 'false') === 'true',
+          retryAttempts: 20,
+          retryDelay: 1000,
         };
       },
     }),
