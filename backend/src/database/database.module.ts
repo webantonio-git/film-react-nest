@@ -10,20 +10,14 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const url = configService.get<string>('DATABASE_URL');
-
         return {
           type: 'postgres',
 
-          ...(url
-            ? { url }
-            : {
-                host: configService.getOrThrow<string>('DATABASE_HOST'),
-                port: Number(configService.getOrThrow<string>('DATABASE_PORT')),
-                username: configService.getOrThrow<string>('DATABASE_USERNAME'),
-                password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
-                database: configService.getOrThrow<string>('DATABASE_NAME'),
-              }),
+          host: configService.getOrThrow<string>('DATABASE_HOST'),
+          port: Number(configService.getOrThrow<string>('DATABASE_PORT')),
+          username: configService.getOrThrow<string>('DATABASE_USERNAME'),
+          password: configService.getOrThrow<string>('DATABASE_PASSWORD'),
+          database: configService.getOrThrow<string>('DATABASE_NAME'),
 
           entities: [FilmEntityOrm, ScheduleEntityOrm],
 
