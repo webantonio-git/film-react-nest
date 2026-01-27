@@ -23,7 +23,6 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
         const username = String(DATABASE_USERNAME);
         const password = String(DATABASE_PASSWORD);
         const database = String(DATABASE_NAME);
-        
 
         return {
           type: 'postgres' as const,

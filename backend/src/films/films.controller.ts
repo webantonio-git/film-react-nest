@@ -31,7 +31,7 @@ export class FilmsController {
       const result = await this.filmsService.getFilmSchedule(id);
       return result;
     } catch (err) {
-      console.error('🔥 getFilmSchedule CI error:', {
+      console.error('getFilmSchedule CI error:', {
         message: err?.message,
         name: err?.name,
         stack: err?.stack,

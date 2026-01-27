@@ -1,3 +1,6 @@
+Основной домен: http://webantonio.nomorepartiessbs.ru/
+Домен с API (пример): http://webantonio.nomorepartiessbs.ru/api/afisha/films
+
 # FILM!
 
 ## Установка
