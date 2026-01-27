@@ -32,7 +32,7 @@ export class FilmsService {
     };
   }
 
-  private toFilmDto(film: FilmEntity): FilmDto {
+  private toFilmDto(film: FilmEntity, schedule?: ScheduleDto[]): FilmDto {
     return {
       id: film.id,
       rating: film.rating,
@@ -42,7 +42,8 @@ export class FilmsService {
       about: film.about,
       description: film.description,
       image: film.image,
-      cover: film.cover,
+      cover: film.cover,  
+      schedule: schedule ?? film.schedule.map((s) => this.toScheduleDto(s)),
     };
   }
 
