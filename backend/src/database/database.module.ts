@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { FilmEntityOrm } from '../films/entities/film.entity';
 import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
@@ -7,25 +8,18 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => {
-        const {
-          DATABASE_HOST = 'localhost',
-          DATABASE_PORT = '5432',
-          DATABASE_USERNAME = 'postgres',
-          DATABASE_PASSWORD = 'postgres',
-          DATABASE_NAME = 'films',
-          TYPEORM_SYNCHRONIZE = 'false',
-          TYPEORM_LOGGING = 'false',
-        } = process.env;
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const host = config.get<string>('DATABASE_HOST');
+        const port = config.get<number>('DATABASE_PORT', 5432); // тут можно оставить не-секретный дефолт
+        const username = config.get<string>('DATABASE_USERNAME');
+        const password = config.get<string>('DATABASE_PASSWORD');
+        const database = config.get<string>('DATABASE_NAME');
+        const synchronize = config.get<string>('TYPEORM_SYNCHRONIZE') === 'true';
+        const logging = config.get<string>('TYPEORM_LOGGING') === 'true';
 
-        const host = String(DATABASE_HOST);
-        const port = Number(DATABASE_PORT);
-        const username = String(DATABASE_USERNAME);
-        const password = String(DATABASE_PASSWORD);
-        const database = String(DATABASE_NAME);
-
-        console.log('DB CONFIG >>>', { host, port, username, password, database });
-
+   
         return {
           type: 'postgres' as const,
           host,
@@ -34,8 +28,8 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
           password,
           database,
           entities: [FilmEntityOrm, ScheduleEntityOrm],
-          synchronize: TYPEORM_SYNCHRONIZE === 'true',
-          logging: TYPEORM_LOGGING === 'true',
+          synchronize,
+          logging,
           retryAttempts: 20,
           retryDelay: 1000,
         };
