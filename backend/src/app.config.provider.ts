@@ -5,15 +5,15 @@ export const configProvider = {
   inject: [ConfigService],
   useFactory: (configService: ConfigService): AppConfig => ({
     database: {
-      driver: configService.get<string>('DATABASE_DRIVER', 'postgres'),
+      driver: configService.get<string>('DATABASE_DRIVER'),
 
-      host: configService.get<string>('DATABASE_HOST', '127.0.0.1'),
-      port: Number(configService.get<string>('DATABASE_PORT', '5432')),
-      name: configService.get<string>('DATABASE_NAME', 'prac'),
-      username: configService.get<string>('DATABASE_USERNAME', 'prac'),
-      password: configService.get<string>('DATABASE_PASSWORD', 'student'),
+      host: configService.get<string>('DATABASE_HOST'),
+      port: Number(configService.get<string>('DATABASE_PORT')),
+      name: configService.get<string>('DATABASE_NAME'),
+      username: configService.get<string>('DATABASE_USERNAME'),
+      password: configService.get<string>('DATABASE_PASSWORD'),
 
-      url: configService.get<string>('DATABASE_URL', ''),
+      url: configService.get<string>('DATABASE_URL'),
     },
   }),
 };

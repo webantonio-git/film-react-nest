@@ -15,7 +15,7 @@ import { OrderService } from './order/order.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+
     }),
 
     DatabaseModule,
