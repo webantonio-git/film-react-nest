@@ -8,12 +8,27 @@ export class FilmsController {
   constructor(private readonly filmsService: FilmsService) {}
 
   @Get()
-  getFilms(): Promise<FilmsResponseDto> {
-    return this.filmsService.getFilms();
+  async getFilms(): Promise<FilmsResponseDto> {
+    try {
+      return await this.filmsService.getFilms();
+    } catch (err) {
+      console.error('🔥 [GET /api/afisha/films] getFilms error:', err);
+      throw err;
+    }
   }
 
   @Get(':id/schedule')
-  getFilmSchedule(@Param('id') id: string): Promise<FilmScheduleResponseDto> {
-    return this.filmsService.getFilmSchedule(id);
+  async getFilmSchedule(
+    @Param('id') id: string,
+  ): Promise<FilmScheduleResponseDto> {
+    try {
+      return await this.filmsService.getFilmSchedule(id);
+    } catch (err) {
+      console.error(
+        `🔥 [GET /api/afisha/films/${id}/schedule] getFilmSchedule error:`,
+        err,
+      );
+      throw err;
+    }
   }
 }
