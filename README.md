@@ -1,5 +1,6 @@
-Основной домен: http://webantonio.nomorepartiessbs.ru/
-Домен с API (пример): http://webantonio.nomorepartiessbs.ru/api/afisha/films
+- Фронтенд: http://webantonio.nomorepartiessbs.ru  
+- Бэкенд (API): http://api.webantonio.nomorepartiessbs.ru  
+  Пример эндпоинта: `http://api.webantonio.nomorepartiessbs.ru/api/afisha/films`
 
 # FILM!
 
