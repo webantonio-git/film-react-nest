@@ -7,19 +7,26 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      // envFilePath можно вообще не указывать — он возьмёт process.env,
+      // которое тесты уже наполнят своим .env
+    }),
+
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        // без дефолтов для секретов
         const host = config.get<string>('DATABASE_HOST');
-        const port = config.get<number>('DATABASE_PORT', 5432); // тут можно оставить не-секретный дефолт
+        const port = config.get<number>('DATABASE_PORT') ?? 5432;
         const username = config.get<string>('DATABASE_USERNAME');
         const password = config.get<string>('DATABASE_PASSWORD');
         const database = config.get<string>('DATABASE_NAME');
-        const synchronize = config.get<string>('TYPEORM_SYNCHRONIZE') === 'true';
-        const logging = config.get<string>('TYPEORM_LOGGING') === 'true';
 
-   
+        if (!host || !username || !password || !database) {
+          throw new Error('Database env vars are not set');
+        }
+
         return {
           type: 'postgres' as const,
           host,
@@ -28,8 +35,8 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
           password,
           database,
           entities: [FilmEntityOrm, ScheduleEntityOrm],
-          synchronize,
-          logging,
+          synchronize: config.get<string>('TYPEORM_SYNCHRONIZE') === 'true',
+          logging: config.get<string>('TYPEORM_LOGGING') === 'true',
           retryAttempts: 20,
           retryDelay: 1000,
         };
