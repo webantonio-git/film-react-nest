@@ -1,4 +1,4 @@
-import { Controller, Get, Param, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException, Param } from '@nestjs/common';
 
 import { FilmScheduleResponseDto, FilmsResponseDto } from './dto/films.dto';
 import { FilmsService } from './films.service';
@@ -13,15 +13,15 @@ export class FilmsController {
       const result = await this.filmsService.getFilms();
       return result;
     } catch (err) {
-      // Супер-прямой лог: чтоб точно попал в логи CI
-      console.error('🔥 getFilms CI error:', {
+      console.error(' getFilms CI error:', {
         message: err?.message,
         name: err?.name,
         stack: err?.stack,
       });
 
-      // Пробрасываем дальше, чтобы тесты по-прежнему видели 500
-      throw new InternalServerErrorException('getFilms failed: ' + (err?.message ?? 'unknown error'));
+      throw new InternalServerErrorException(
+        'getFilms failed: ' + (err?.message ?? 'unknown error'),
+      );
     }
   }
 
@@ -37,7 +37,9 @@ export class FilmsController {
         stack: err?.stack,
       });
 
-      throw new InternalServerErrorException('getFilmSchedule failed: ' + (err?.message ?? 'unknown error'));
+      throw new InternalServerErrorException(
+        'getFilmSchedule failed: ' + (err?.message ?? 'unknown error'),
+      );
     }
   }
 }

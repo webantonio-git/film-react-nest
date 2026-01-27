@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: film-postgres
+    environment:
+      POSTGRES_DB: prac
+      POSTGRES_USER: prac
+      POSTGRES_PASSWORD: student
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - film-net
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: film-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - film-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    image: ghcr.io/webantonio-git/film-backend:latest
+    container_name: film-backend
+    environment:
+      DATABASE_DRIVER: "postgres"
+
+  
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "prac"
+      DATABASE_USERNAME: "prac"
+      DATABASE_PASSWORD: "student"
+
+
+      DATABASE_URL: "postgres://prac:student@postgres:5432/prac"
+
+      TYPEORM_SYNCHRONIZE: "false"
+      TYPEORM_LOGGING: "false"
+
+      DEBUG: "*"
+    depends_on:
+      - postgres
+    networks:
+      - film-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ghcr.io/webantonio-git/film-frontend:latest
+    container_name: film-frontend
+
+    volumes:
+      - frontend-dist:/app/dist
+    networks:
+      - film-net
+
+  nginx:
+    build:
+      context: ./nginx
+    image: ghcr.io/webantonio-git/film-nginx:latest
+    container_name: film-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+    volumes:
+      - frontend-dist:/usr/share/nginx/html:ro
+    networks:
+      - film-net
+
+volumes:
+  db-data:
+  pgadmin-data:
+  frontend-dist:
+
+networks:
+  film-net:
+    driver: bridge
