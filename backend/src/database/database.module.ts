@@ -13,10 +13,10 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
           process.env.TYPEORM_CONNECTION ||
           'postgres';
 
-        // URL (например, DATABASE_URL или TYPEORM_URL)
+      
         const url = process.env.DATABASE_URL || process.env.TYPEORM_URL;
 
-        // Пытаемся собрать хост/порт/юзера/пароль из разных наборов переменных
+
         const host =
           process.env.DATABASE_HOST ||
           process.env.POSTGRES_HOST ||
@@ -53,7 +53,7 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
 
         const hasFullCreds = host && username && password && database;
 
-        // 1) Если есть нормальные отдельные переменные — используем их
+     
         if (hasFullCreds) {
           return {
             type: driver as 'postgres',
@@ -70,7 +70,7 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
           };
         }
 
-        // 2) Иначе пробуем URL
+     
         if (url) {
           return {
             type: driver as 'postgres',
@@ -83,7 +83,7 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
           };
         }
 
-        // 3) Если вообще ничего нет — явно падаем
+  
         throw new Error('Database env vars are not set');
       },
     }),
