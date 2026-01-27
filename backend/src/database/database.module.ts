@@ -9,28 +9,35 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
     TypeOrmModule.forRootAsync({
       useFactory: () => {
         const {
-     DATABASE_HOST,
-  DATABASE_PORT,
-  DATABASE_USERNAME,
-  DATABASE_PASSWORD,
-  DATABASE_NAME,
-  TYPEORM_SYNCHRONIZE,
-  TYPEORM_LOGGING,
+          DATABASE_HOST,
+          DATABASE_PORT,
+          DATABASE_USERNAME,
+          DATABASE_PASSWORD,
+          DATABASE_NAME,
+          TYPEORM_SYNCHRONIZE,
+          TYPEORM_LOGGING,
         } = process.env;
 
-        const host = String(DATABASE_HOST);
-        const port = Number(DATABASE_PORT);
-        const username = String(DATABASE_USERNAME);
-        const password = String(DATABASE_PASSWORD);
-        const database = String(DATABASE_NAME);
+        const missing: string[] = [];
+        if (!DATABASE_HOST) missing.push('DATABASE_HOST');
+        if (!DATABASE_PORT) missing.push('DATABASE_PORT');
+        if (!DATABASE_USERNAME) missing.push('DATABASE_USERNAME');
+        if (!DATABASE_PASSWORD) missing.push('DATABASE_PASSWORD');
+        if (!DATABASE_NAME) missing.push('DATABASE_NAME');
+
+        if (missing.length > 0) {
+          throw new Error(
+            `Database env vars are not set: ${missing.join(', ')}`,
+          );
+        }
 
         return {
           type: 'postgres' as const,
-          host,
-          port,
-          username,
-          password,
-          database,
+          host: DATABASE_HOST,
+          port: Number(DATABASE_PORT),
+          username: DATABASE_USERNAME,
+          password: DATABASE_PASSWORD,
+          database: DATABASE_NAME,
           entities: [FilmEntityOrm, ScheduleEntityOrm],
           synchronize: TYPEORM_SYNCHRONIZE === 'true',
           logging: TYPEORM_LOGGING === 'true',
