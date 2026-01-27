@@ -9,11 +9,11 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
     TypeOrmModule.forRootAsync({
       useFactory: () => {
         const {
-          DATABASE_HOST,
-          DATABASE_PORT,
-          DATABASE_USERNAME,
-          DATABASE_PASSWORD,
-          DATABASE_NAME,
+          DATABASE_HOST = 'localhost',
+          DATABASE_PORT ,
+          DATABASE_USERNAME ,
+          DATABASE_PASSWORD ,
+          DATABASE_NAME = 'films',
           TYPEORM_SYNCHRONIZE = 'false',
           TYPEORM_LOGGING = 'false',
         } = process.env;
@@ -23,7 +23,7 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
         const username = String(DATABASE_USERNAME);
         const password = String(DATABASE_PASSWORD);
         const database = String(DATABASE_NAME);
-       
+        
 
         return {
           type: 'postgres' as const,
