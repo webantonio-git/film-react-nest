@@ -4,10 +4,11 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: film-postgres
+    restart: always
     environment:
-      POSTGRES_DB: prac
-      POSTGRES_USER: prac
-      POSTGRES_PASSWORD: student
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -16,15 +17,16 @@ services:
   pgadmin:
     image: dpage/pgadmin4:8
     container_name: film-pgadmin
+    restart: always
+    depends_on:
+      - postgres
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "8080:80"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-    depends_on:
-      - postgres
     networks:
       - film-net
 
@@ -32,28 +34,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-
     image: ghcr.io/webantonio-git/film-backend:latest
     container_name: film-backend
-    environment:
-      DATABASE_DRIVER: "postgres"
-
-  
-      DATABASE_HOST: "postgres"
-      DATABASE_PORT: "5432"
-      DATABASE_NAME: "prac"
-      DATABASE_USERNAME: "prac"
-      DATABASE_PASSWORD: "student"
-
-
-      DATABASE_URL: "postgres://prac:student@postgres:5432/prac"
-
-      TYPEORM_SYNCHRONIZE: "false"
-      TYPEORM_LOGGING: "false"
-
-      DEBUG: "*"
+    restart: always
     depends_on:
       - postgres
+    env_file:
+      - .env
     networks:
       - film-net
 
@@ -63,33 +50,32 @@ services:
       dockerfile: Dockerfile
     image: ghcr.io/webantonio-git/film-frontend:latest
     container_name: film-frontend
-
-    volumes:
-      - frontend-dist:/app/dist
+    restart: always
     networks:
       - film-net
+    volumes:
+      - frontend-dist:/app/dist
 
   nginx:
     build:
       context: ./nginx
     image: ghcr.io/webantonio-git/film-nginx:latest
     container_name: film-nginx
-    ports:
-      - "80:80"
+    restart: always
     depends_on:
       - backend
       - frontend
-
-    volumes:
-      - frontend-dist:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
     networks:
       - film-net
+    volumes:
+      - frontend-dist:/usr/share/nginx/html:ro
+
+networks:
+  film-net:
 
 volumes:
   db-data:
   pgadmin-data:
   frontend-dist:
-
-networks:
-  film-net:
-    driver: bridge
