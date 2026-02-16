@@ -25,17 +25,18 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
         const database = String(DATABASE_NAME);
 
         return {
-          type: 'postgres' as const,
-          host,
-          port,
-          username,
-          password,
-          database,
+          type: 'postgres',
+          ...(url ? { url } : {}),
+          host: configService.get<string>('DATABASE_HOST', '127.0.0.1'),
+          port: Number(configService.get<string>('DATABASE_PORT', '5432')),
+          username: configService.get<string>('DATABASE_USERNAME', 'prac'),
+          password: configService.get<string>('DATABASE_PASSWORD', 'student'),
+          database: configService.get<string>('DATABASE_NAME', 'prac'),
+
           entities: [FilmEntityOrm, ScheduleEntityOrm],
-          synchronize: TYPEORM_SYNCHRONIZE === 'true',
-          logging: TYPEORM_LOGGING === 'true',
-          retryAttempts: 20,
-          retryDelay: 1000,
+
+          synchronize: configService.get<string>('TYPEORM_SYNCHRONIZE', 'false') === 'true',
+          logging: configService.get<string>('TYPEORM_LOGGING', 'false') === 'true',
         };
       },
     }),
