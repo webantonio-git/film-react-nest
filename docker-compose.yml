@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: film-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - film-net
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: film-pgadmin
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - film-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: ghcr.io/webantonio-git/film-backend:latest
+    container_name: film-backend
+    restart: always
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - film-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: ghcr.io/webantonio-git/film-frontend:latest
+    container_name: film-frontend
+    restart: always
+    networks:
+      - film-net
+    volumes:
+      - frontend-dist:/app/dist
+
+  nginx:
+    build:
+      context: ./nginx
+    image: ghcr.io/webantonio-git/film-nginx:latest
+    container_name: film-nginx
+    restart: always
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+    networks:
+      - film-net
+    volumes:
+      - frontend-dist:/usr/share/nginx/html:ro
+
+networks:
+  film-net:
+
+volumes:
+  db-data:
+  pgadmin-data:
+  frontend-dist:

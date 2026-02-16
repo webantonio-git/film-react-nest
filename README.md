@@ -1,3 +1,7 @@
+- Фронтенд: http://webantonio.nomorepartiessbs.ru  
+- Бэкенд (API): http://api.webantonio.nomorepartiessbs.ru  
+  Пример эндпоинта: `http://api.webantonio.nomorepartiessbs.ru/api/afisha/films`
+
 # FILM!
 
 ## Установка

@@ -7,9 +7,22 @@ import { ScheduleEntityOrm } from '../films/entities/schedule.entity';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const url = configService.get<string>('DATABASE_URL') || undefined;
+      useFactory: () => {
+        const {
+          DATABASE_HOST = 'localhost',
+          DATABASE_PORT ,
+          DATABASE_USERNAME ,
+          DATABASE_PASSWORD ,
+          DATABASE_NAME = 'films',
+          TYPEORM_SYNCHRONIZE = 'false',
+          TYPEORM_LOGGING = 'false',
+        } = process.env;
+
+        const host = String(DATABASE_HOST);
+        const port = Number(DATABASE_PORT);
+        const username = String(DATABASE_USERNAME);
+        const password = String(DATABASE_PASSWORD);
+        const database = String(DATABASE_NAME);
 
         return {
           type: 'postgres',
